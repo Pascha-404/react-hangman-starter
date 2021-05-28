@@ -19,7 +19,12 @@ class Hangman extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { nWrong: 0, guessed: new Set(), answer: "apple", hasWon: 0 };
+        this.state = {
+            nWrong: 0,
+            guessed: new Set(),
+            answer: 'apple',
+            hasWon: 0,
+        };
         this.handleGuess = this.handleGuess.bind(this);
         this.handleReset = this.handleReset.bind(this);
     }
@@ -42,7 +47,7 @@ class Hangman extends Component {
         this.setState((st) => ({
             guessed: st.guessed.add(ltr),
             nWrong: st.nWrong + (st.answer.includes(ltr) ? 0 : 1),
-            hasWon: (this.state.guessed.has(this.state.answer) ? 1 : 0)
+            hasWon: this.state.guessed.has(this.state.answer) ? 1 : 0,
         }));
     }
 
@@ -58,8 +63,20 @@ class Hangman extends Component {
         this.resetGame();
     }
 
+gameState(e){
+    const isWinner = this.guessedWord().join("") === this.state.answer;
+    if(isWinner){
+        return <p>You win!</p>;
+    } 
+    if(this.state.nWrong >= this.props.maxWrong){
+        return <p>You loose!</p>
+    }
+    return <AlphaButtons handleGuess={this.handleGuess} guessed={this.state.guessed}/>
+}
+
     /** render: render game */
     render() {
+        
         return (
             <div className='Hangman'>
                 <h1>Hangman</h1>
@@ -68,21 +85,17 @@ class Hangman extends Component {
                     alt={this.state.nWrong + ' wrong guesses'}
                 />
 
-                {this.state.nWrong !== this.props.maxWrong ? (
-                    <p className='Hangman-word'>{this.guessedWord()}</p>
-                ) : (
-                    <p className='Hangman-word'>{this.state.answer}</p>
-                )}
+                <p className='Hangman-word'>
+                    {this.state.nWrong !== this.props.maxWrong
+                        ? this.guessedWord()
+                        : this.state.answer}
+                </p>
 
                 <p className='Hangman-wrongGuesses'>
                     Wrong guesses: {this.state.nWrong}
                 </p>
 
-                {this.state.nWrong !== this.props.maxWrong ? (
-                    <AlphaButtons handleGuess={this.handleGuess} guessed={this.state.guessed}/>
-                ) : (
-                    <p>You lose!</p>
-                )}
+                {this.gameState()}
 
                 <button className='Hangman-resetBtn' onClick={this.handleReset}>
                     Reset the game
